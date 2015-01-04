@@ -14,19 +14,9 @@ angular.module('passByApp')
 
     $scope.handleFormSubmit = function(){
       var params = {
-        oLat: getLat(this.originAutocomplete.getPlace()),
-        oLon: getLon(this.originAutocomplete.getPlace()),
-        dLat: getLat(this.destinationAutocomplete.getPlace()),
-        dLon: getLon(this.destinationAutocomplete.getPlace())
+        o: this.originAutocomplete.getPlace().formatted_address,
+        d: this.destinationAutocomplete.getPlace().formatted_address
       };
       $location.path('/results').search(params);
     }
   });
-
-function getLat(place){
-  return place.geometry.location.toString().split(", ")[0].slice(1);
-}
-
-function getLon(place){
-  return place.geometry.location.toString().split(", ")[1].slice(0, -1);
-}

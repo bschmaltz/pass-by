@@ -9,11 +9,20 @@
  */
 angular.module('passByApp')
   .controller('ResultsCtrl', function ($scope, $routeParams) {
-    var mapOptions =  {
-      zoom: 12,
-      center: new google.maps.LatLng(10, -10),
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-
+    var directionsDisplay = new google.maps.DirectionsRenderer();
+    var directionsService = new google.maps.DirectionsService();
+    var mapOptions = {}
     $scope.resultMap = new google.maps.Map(document.getElementById('results-map-canvas'), mapOptions);
+    directionsDisplay.setMap($scope.resultMap);
+    
+    var request = {
+      origin: $routeParams.o,
+      destination: $routeParams.d,
+      travelMode: google.maps.TravelMode.DRIVING
+    };
+    directionsService.route(request, function(result, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsDisplay.setDirections(result);
+      }
+    });
   });
