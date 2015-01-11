@@ -60,10 +60,33 @@ body {
     margin-top: 30px;
   }
 }
+.results-nav a{
+  margin-bottom: 10px;
+}
+
+.results{
+  z-index: 6;
+  position: absolute !important;
+  width: 400px;
+  top: 115px;
+  bottom: 80px;
+  right: 10px;
+}
+.results-list{
+  position: absolute !important;
+  width: 370px;
+  top: 70px;
+  bottom: 0px;
+  overflow-y: scroll;
+}
 
 #results-map-canvas{
-  height: 300px;
-  width: 400px;
+  z-index: 5;
+  position: absolute !important;
+  left: 0px;
+  right: 0px;
+  top: 105px;
+  bottom: 0px;
 }
 
 .route-form{

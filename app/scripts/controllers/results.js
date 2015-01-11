@@ -1,15 +1,16 @@
-/**
- * @ngdoc function
- * @name passByApp.controller:MainCtrl
- * @description
- * # MainCtrl
- * Controller of the passByApp
- */
+var FOOD_TYPES = ['restaurant', 'cafe', 'food'];
+var ATTRACTION_TYPES = ['amusement_park', 'aquarium', 'art_gallery', 'park', 'zoo'];
+var LODGING_TYPES = ['lodging'];
+
 angular.module('passByApp')
   .controller('ResultsCtrl', function ($scope, $routeParams) {
+    setupTabs($scope);
+
     var directionsDisplay = new google.maps.DirectionsRenderer();
     var directionsService = new google.maps.DirectionsService();
-    var mapOptions = {}
+    var mapOptions = {
+      disableDefaultUI: true
+    }
     $scope.resultMap = new google.maps.Map(document.getElementById('results-map-canvas'), mapOptions);
     directionsDisplay.setMap($scope.resultMap);
     
@@ -28,16 +29,20 @@ angular.module('passByApp')
         var radius = 5000;  //todo: more dynamic radius and/or use of bounds
         var pathIndex = 0;
         var atEndOfPath = false;
+        $scope.foodResults = [];
+        $scope.attractionResults = [];
+        $scope.lodgingResults = [];
 
         while(!atEndOfPath){
           var request = {
             location: path[pathIndex],
             radius: radius,
-            types: "amusement_park|aquarium|art_gallery|museum|park|zoo|cafe|food|meal_takeaway|restaurant|lodging"
+            types: FOOD_TYPES.concat(ATTRACTION_TYPES).concat(LODGING_TYPES)
           };
           placesService.nearbySearch(request, function(results, status){
             if (status == google.maps.places.PlacesServiceStatus.OK) {
-              console.log("search results=", results);
+              updateDisplayedResults($scope, results);
+              console.log($scope.foodResults);
             }
           });
 
@@ -57,6 +62,55 @@ function getNextPathIndex(cur, dist, path){
   }
   return res;
 }
-//pick best place per search. if it was in last search, get next best.
-//load elements to dom as you get them.
-//if there's nothing or shit results, just don't add anything
+function setupTabs($scope){
+  $scope.tab = 'food';
+  $scope.setTab = function(tabName){
+    if(tabName !== this.tab){
+      this.tab = tabName;
+    }
+  }
+}
+
+function updateDisplayedResults($scope, results){
+  var bestFood = null;
+  var bestAttraction = null;
+  var bestLodging = null;
+  for(var i=0; i<results.length; i++){
+    if(lastElementIsNot(results[i], $scope.foodResults) && resultIsOfType(results[i], FOOD_TYPES) && resultImproved(results[i], bestFood)){
+      bestFood = results[i];
+    }else if(lastElementIsNot(results[i], $scope.attractionResults) && resultIsOfType(results[i], ATTRACTION_TYPES) && resultImproved(results[i], bestAttraction)){
+      bestAttraction = results[i];
+    }else if(lastElementIsNot(results[i], $scope.lodgingResults) && resultIsOfType(results[i], LODGING_TYPES) && resultImproved(results[i], bestLodging)){
+      bestLodging = results[i];
+    }
+  }
+  if(bestFood!==null || bestAttraction!==null || bestLodging!==null){
+    if(bestFood !== null){
+      $scope.foodResults.push(bestFood);
+    }
+    if(bestAttraction !== null){
+      $scope.attractionResults.push(bestAttraction);
+    }
+    if(bestLodging !== null){
+      $scope.lodgingResults.push(bestLodging);
+    }
+    $scope.$apply();
+  }
+
+  function resultIsOfType(res, type){
+    for(var j=0; j<res.types.length; j++){
+      if(type.indexOf(res.types[j]) !== -1){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function resultImproved(res, curBest){
+    return res.rating !== undefined && (curBest === null || res.rating > curBest.rating);
+  }
+
+  function lastElementIsNot(res, arr){
+    return arr.length === 0 || arr[arr.length-1].id !== res.id;
+  }
+}
