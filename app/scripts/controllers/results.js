@@ -4,14 +4,13 @@ var LODGING_TYPES = ['lodging'];
 
 angular.module('passByApp')
   .controller('ResultsCtrl', function ($scope, $routeParams) {
-    setupTabs($scope);
-
     var directionsDisplay = new google.maps.DirectionsRenderer();
     var directionsService = new google.maps.DirectionsService();
     var mapOptions = {
       disableDefaultUI: true
     }
     $scope.resultMap = new google.maps.Map(document.getElementById('results-map-canvas'), mapOptions);
+    setupResults($scope);
     directionsDisplay.setMap($scope.resultMap);
     
     var request = {
@@ -26,9 +25,10 @@ angular.module('passByApp')
         var placesService = new google.maps.places.PlacesService($scope.resultMap);
         var totalDistance = result.routes[0].legs[0].distance.value;
         var path = result.routes[0].overview_path;
-        var radius = 5000;  //todo: more dynamic radius and/or use of bounds
+        var radius = Math.ceil((totalDistance + Math.ceil(totalDistance/10))/10);  //todo: more dynamic radius and/or use of bounds
         var pathIndex = 0;
         var atEndOfPath = false;
+        var requestTypes = FOOD_TYPES.concat(ATTRACTION_TYPES).concat(LODGING_TYPES);
         $scope.foodResults = [];
         $scope.attractionResults = [];
         $scope.lodgingResults = [];
@@ -37,12 +37,11 @@ angular.module('passByApp')
           var request = {
             location: path[pathIndex],
             radius: radius,
-            types: FOOD_TYPES.concat(ATTRACTION_TYPES).concat(LODGING_TYPES)
+            types: requestTypes
           };
           placesService.nearbySearch(request, function(results, status){
             if (status == google.maps.places.PlacesServiceStatus.OK) {
               updateDisplayedResults($scope, results);
-              console.log($scope.foodResults);
             }
           });
 
@@ -62,11 +61,31 @@ function getNextPathIndex(cur, dist, path){
   }
   return res;
 }
-function setupTabs($scope){
+function setupResults($scope){
   $scope.tab = 'food';
+  $scope.marker = null;
+  $scope.markedResult = null;
   $scope.setTab = function(tabName){
     if(tabName !== this.tab){
       this.tab = tabName;
+    }
+  }
+  $scope.showPinForRes = function(res){
+    if($scope.marker === null){
+      $scope.markedResult = res;
+      $scope.marker = new google.maps.Marker({
+        position: res.geometry.location,
+        map: this.resultMap
+      });
+    }else{
+      if(res === $scope.markedResult){
+        $scope.markedResult = null;
+        $scope.marker.setMap(null);
+        $scope.marker = null;
+      }else{
+        $scope.markedResult = res;
+        $scope.marker.setPosition(res.geometry.location);
+      }
     }
   }
 }

@@ -9,21 +9,21 @@
       </ul>
 
       <div class="list-group results-list food-results" ng-show="tab === 'food'">
-        <div class="list-group-item" ng-repeat="foodResult in foodResults">
+        <div class="list-group-item" ng-repeat="foodResult in foodResults" ng-click="showPinForRes(foodResult)"  ng-class="{active: foodResult===markedResult }">
           <h4 class="list-group-item-heading">{{ foodResult.name }}</h4>
           <p class="list-group-item-text">Rating: {{ foodResult.rating }}</p>
           <p class="list-group-item-text">{{ foodResult.vicinity }}</p>
         </div>
       </div>
       <div class="list-group results-list attraction-results" ng-show="tab === 'attraction'">
-        <div class="list-group-item" ng-repeat="attractionResult in attractionResults">
+        <div class="list-group-item" ng-repeat="attractionResult in attractionResults" ng-click="showPinForRes(attractionResult)" ng-class="{active: attractionResult===markedResult }">
           <h4 class="list-group-item-heading">{{ attractionResult.name }}</h4>
           <p class="list-group-item-text">Rating: {{ attractionResult.rating }}</p>
           <p class="list-group-item-text">{{ attractionResult.vicinity }}</p>
         </div>
       </div>
       <div class="list-group results-list lodging-results" ng-show="tab === 'lodging'">
-        <div class="list-group-item" ng-repeat="lodgingResult in lodgingResults">
+        <div class="list-group-item" ng-repeat="lodgingResult in lodgingResults" ng-click="showPinForRes(lodgingResult)"  ng-class="{active: lodgingResult===markedResult }">
           <h4 class="list-group-item-heading">{{ lodgingResult.name }}</h4>
           <p class="list-group-item-text">Rating: {{ lodgingResult.rating }}</p>
           <p class="list-group-item-text">{{ lodgingResult.vicinity }}</p>
