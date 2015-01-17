@@ -82,7 +82,24 @@ function setupResults($scope){
     $scope.directionsDisplay.setDirections($scope.altDirectionsDisplay.directions);
     $scope.altDirectionsDisplay.setDirections(oldRoute);
     updateInfoWindowContent($scope.directionsDisplay.directions.routes[0], $scope.altDirectionsDisplay.directions.routes[0], $scope.infowindow);
-    $scope.addedResults.push(res);
+    //$scope.addedResults.push(res);
+    //add waypoint to maintain farthest from dest to closest order
+    
+    var dest = oldRoute.routes[0].legs[0].end_location;
+    var resDistanceToDest = google.maps.geometry.spherical.computeDistanceBetween(res.geometry.location, dest);
+    var insertBeforeIndex = $scope.addedResults.length;
+    for(var i=0; i<$scope.addedResults.length; i++){
+      if(resDistanceToDest > google.maps.geometry.spherical.computeDistanceBetween($scope.addedResults[i].geometry.location, dest)){
+        insertBeforeIndex = i;
+      }
+    }
+    if(insertBeforeIndex === $scope.addedResults.length){
+      $scope.addedResults.push(res);
+    }else if (insertBeforeIndex === 0){
+      $scope.addedResults.unshift(res);
+    }else{
+      $scope.addedResults.splice(insertBeforeIndex-1, 0, res);
+    }
   }
   $scope.removeResult = function(res){
     var oldRoute = $scope.directionsDisplay.directions;
@@ -118,12 +135,13 @@ function setupResults($scope){
 
     function showAltRoute(){
       $scope.altDirectionsDisplay.setMap($scope.resultMap);
+      var dest = $scope.directionsDisplay.directions.routes[0].legs[0].end_location;
 
       var altRequest ={
         origin: $scope.request.origin,
         destination: $scope.request.destination,
         travelMode: google.maps.TravelMode.DRIVING,
-        waypoints: getWaypoints($scope.addedResults, res),
+        waypoints: getWaypoints($scope.addedResults, res, dest),
         optimizeWaypoints: true
       };
       $scope.directionsService.route(altRequest, function(result, status) {
@@ -150,20 +168,31 @@ function updateInfoWindowContent(mainRoute, altRoute, infowindow){
   infowindow.setContent(miles +" miles, "+ minutes+" min");
 }
 
-function getWaypoints(addedResults, res){
+function getWaypoints(addedResults, res, dest){
   var waypoints = [];
 
   if(addedResults.indexOf(res)===-1){ //alt route includes marker
+    var addedRes = false;
+    var resDistanceToDest = google.maps.geometry.spherical.computeDistanceBetween(res.geometry.location, dest);
     for(var i=0; i<addedResults.length; i++){
+      if(!addedRes && resDistanceToDest > google.maps.geometry.spherical.computeDistanceBetween(addedResults[i].geometry.location, dest)){
+        addedRes = true;
+        waypoints.push({
+          location: res.geometry.location,
+          stopover: false
+        });
+      }
       waypoints.push({
         location: addedResults[i].geometry.location,
         stopover: false
       });
     }
-    waypoints.push({
-      location: res.geometry.location,
-      stopover: false
-    });
+    if(!addedRes){
+      waypoints.push({
+        location: res.geometry.location,
+        stopover: false
+      });
+    }
   }else{ //alt route excludes marker
     for(var i=0; i<addedResults.length; i++){
       if(addedResults[i] !== res){
