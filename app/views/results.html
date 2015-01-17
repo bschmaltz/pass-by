@@ -13,6 +13,8 @@
           <h4 class="list-group-item-heading">{{ foodResult.name }}</h4>
           <p class="list-group-item-text">Rating: {{ foodResult.rating }}</p>
           <p class="list-group-item-text">{{ foodResult.vicinity }}</p>
+          <button class="btn btn-default add-result-button" type="submit" ng-show="foodResult===markedResult && addedResults.indexOf(foodResult)===-1" ng-click="addResult(foodResult);$event.stopPropagation()">+</button>
+          <button class="btn btn-default remove-result-button" type="submit" ng-show="foodResult===markedResult && addedResults.indexOf(foodResult)!==-1" ng-click="removeResult(foodResult);$event.stopPropagation()">-</button>
         </div>
       </div>
       <div class="list-group results-list attraction-results" ng-show="tab === 'attraction'">
@@ -20,6 +22,8 @@
           <h4 class="list-group-item-heading">{{ attractionResult.name }}</h4>
           <p class="list-group-item-text">Rating: {{ attractionResult.rating }}</p>
           <p class="list-group-item-text">{{ attractionResult.vicinity }}</p>
+          <button class="btn btn-default add-result-button" type="submit" ng-show="attractionResult===markedResult && addedResults.indexOf(attractionResult)===-1" ng-click="addResult(attractionResult);$event.stopPropagation()">+</button>
+          <button class="btn btn-default remove-result-button" type="submit" ng-show="attractionResult===markedResult && addedResults.indexOf(attractionResult)!==-1" ng-click="removeResult(attractionResult);$event.stopPropagation()">-</button>
         </div>
       </div>
       <div class="list-group results-list lodging-results" ng-show="tab === 'lodging'">
@@ -27,6 +31,8 @@
           <h4 class="list-group-item-heading">{{ lodgingResult.name }}</h4>
           <p class="list-group-item-text">Rating: {{ lodgingResult.rating }}</p>
           <p class="list-group-item-text">{{ lodgingResult.vicinity }}</p>
+          <button class="btn btn-default add-result-button" type="submit" ng-show="lodgingResult===markedResult && addedResults.indexOf(lodgingResult)===-1" ng-click="addResult(lodgingResult);$event.stopPropagation()">+</button>
+          <button class="btn btn-default remove-result-button" type="submit" ng-show="lodgingResult===markedResult && addedResults.indexOf(lodgingResult)!==-1" ng-click="removeResult(lodgingResult);$event.stopPropagation()">-</button>
         </div>
       </div>
     </div>

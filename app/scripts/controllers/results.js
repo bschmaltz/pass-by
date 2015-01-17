@@ -71,11 +71,25 @@ function setupResults($scope){
   $scope.tab = 'food';
   $scope.marker = null;
   $scope.markedResult = null;
+  $scope.addedResults = [];
   $scope.setTab = function(tabName){
     if(tabName !== this.tab){
       this.tab = tabName;
     }
   }
+  $scope.addResult = function(res){
+    var oldRoute = $scope.directionsDisplay.directions;
+    $scope.directionsDisplay.setDirections($scope.altDirectionsDisplay.directions);
+    $scope.altDirectionsDisplay.setDirections(oldRoute);
+    $scope.addedResults.push(res);
+  }
+  $scope.removeResult = function(res){
+    var oldRoute = $scope.directionsDisplay.directions;
+    $scope.directionsDisplay.setDirections($scope.altDirectionsDisplay.directions);
+    $scope.altDirectionsDisplay.setDirections(oldRoute);
+    $scope.addedResults.splice($scope.addedResults.indexOf(res), 1);
+  }
+
   $scope.showPinForRes = function(res){
     if($scope.marker === null){
       $scope.markedResult = res;
@@ -106,10 +120,7 @@ function setupResults($scope){
         origin: $scope.request.origin,
         destination: $scope.request.destination,
         travelMode: google.maps.TravelMode.DRIVING,
-        waypoints: $scope.request.waypoints.concat([{
-          location:res.geometry.location,
-          stopover:false
-        }])
+        waypoints: getWaypoints($scope.addedResults, res)
       };
       $scope.directionsService.route(altRequest, function(result, status) {
         if (status == google.maps.DirectionsStatus.OK) {
@@ -122,6 +133,34 @@ function setupResults($scope){
       });
     }
   }
+}
+
+function getWaypoints(addedResults, res){
+  var waypoints = [];
+
+  if(addedResults.indexOf(res)===-1){ //alt route includes marker
+    for(var i=0; i<addedResults.length; i++){
+      waypoints.push({
+        location: addedResults[i].geometry.location,
+        stopover: false
+      });
+    }
+    waypoints.push({
+      location: res.geometry.location,
+      stopover: false
+    })
+  }else{ //alt route excludes marker
+    for(var i=0; i<addedResults.length; i++){
+      if(addedResults[i] !== res){
+        waypoints.push({
+          location: addedResults[i].geometry.location,
+          stopover: false
+        });
+      }
+    }
+  }
+
+  return waypoints;
 }
 
 function updateDisplayedResults($scope, results){
