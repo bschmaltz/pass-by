@@ -81,12 +81,14 @@ function setupResults($scope){
     var oldRoute = $scope.directionsDisplay.directions;
     $scope.directionsDisplay.setDirections($scope.altDirectionsDisplay.directions);
     $scope.altDirectionsDisplay.setDirections(oldRoute);
+    updateInfoWindowContent($scope.directionsDisplay.directions.routes[0], $scope.altDirectionsDisplay.directions.routes[0], $scope.infowindow);
     $scope.addedResults.push(res);
   }
   $scope.removeResult = function(res){
     var oldRoute = $scope.directionsDisplay.directions;
     $scope.directionsDisplay.setDirections($scope.altDirectionsDisplay.directions);
     $scope.altDirectionsDisplay.setDirections(oldRoute);
+    updateInfoWindowContent($scope.directionsDisplay.directions.routes[0], $scope.altDirectionsDisplay.directions.routes[0], $scope.infowindow);
     $scope.addedResults.splice($scope.addedResults.indexOf(res), 1);
   }
 
@@ -116,23 +118,36 @@ function setupResults($scope){
 
     function showAltRoute(){
       $scope.altDirectionsDisplay.setMap($scope.resultMap);
+
       var altRequest ={
         origin: $scope.request.origin,
         destination: $scope.request.destination,
         travelMode: google.maps.TravelMode.DRIVING,
-        waypoints: getWaypoints($scope.addedResults, res)
+        waypoints: getWaypoints($scope.addedResults, res),
+        optimizeWaypoints: true
       };
       $scope.directionsService.route(altRequest, function(result, status) {
         if (status == google.maps.DirectionsStatus.OK) {
-          var addedMiles = (result.routes[0].legs[0].distance.value - $scope.directionsDisplay.directions.routes[0].legs[0].distance.value)*0.00062137;
-          var addedMinutes = (result.routes[0].legs[0].duration.value - $scope.directionsDisplay.directions.routes[0].legs[0].duration.value)/60;
           $scope.altDirectionsDisplay.setDirections(result);
-          $scope.infowindow.setContent("Adds: "+ addedMiles.toFixed(1) +" miles, "+ addedMinutes.toFixed(0)+" minutes");
+          updateInfoWindowContent($scope.directionsDisplay.directions.routes[0], result.routes[0], $scope.infowindow)
           $scope.infowindow.open($scope.resultMap,$scope.marker);
         }
       });
     }
   }
+}
+
+function updateInfoWindowContent(mainRoute, altRoute, infowindow){
+  var miles = ((altRoute.legs[0].distance.value - mainRoute.legs[0].distance.value)*0.00062137).toFixed(1);
+  var minutes = ((altRoute.legs[0].duration.value - mainRoute.legs[0].duration.value)/60).toFixed(0);
+  if(miles>0){
+    miles = "+"+miles;
+  }
+  if(minutes>0){
+    minutes = "+"+minutes;
+  }
+
+  infowindow.setContent(miles +" miles, "+ minutes+" min");
 }
 
 function getWaypoints(addedResults, res){
@@ -148,7 +163,7 @@ function getWaypoints(addedResults, res){
     waypoints.push({
       location: res.geometry.location,
       stopover: false
-    })
+    });
   }else{ //alt route excludes marker
     for(var i=0; i<addedResults.length; i++){
       if(addedResults[i] !== res){
