@@ -4,28 +4,34 @@ var LODGING_TYPES = ['lodging'];
 
 angular.module('passByApp')
   .controller('ResultsCtrl', function ($scope, $routeParams) {
-    var directionsDisplay = new google.maps.DirectionsRenderer();
-    var directionsService = new google.maps.DirectionsService();
+    $scope.directionsDisplay = new google.maps.DirectionsRenderer();
+    $scope.altDirectionsDisplay = new google.maps.DirectionsRenderer({
+      polylineOptions: {
+        strokeColor: "grey"
+      }
+    });
+    $scope.directionsService = new google.maps.DirectionsService();
     var mapOptions = {
       disableDefaultUI: true
     }
     $scope.resultMap = new google.maps.Map(document.getElementById('results-map-canvas'), mapOptions);
     setupResults($scope);
-    directionsDisplay.setMap($scope.resultMap);
+    $scope.directionsDisplay.setMap($scope.resultMap);
     
-    var request = {
+    $scope.request = {
       origin: $routeParams.o,
       destination: $routeParams.d,
-      travelMode: google.maps.TravelMode.DRIVING
+      travelMode: google.maps.TravelMode.DRIVING,
+      waypoints: []
     };
-    directionsService.route(request, function(result, status) {
+    $scope.directionsService.route($scope.request, function(result, status) {
       if (status == google.maps.DirectionsStatus.OK) {
-        directionsDisplay.setDirections(result);
+        $scope.directionsDisplay.setDirections(result);
 
         var placesService = new google.maps.places.PlacesService($scope.resultMap);
         var totalDistance = result.routes[0].legs[0].distance.value;
         var path = result.routes[0].overview_path;
-        var radius = Math.ceil((totalDistance + Math.ceil(totalDistance/10))/10);  //todo: more dynamic radius and/or use of bounds
+        var radius = Math.ceil((totalDistance + Math.ceil(totalDistance/10))/10);
         var pathIndex = 0;
         var atEndOfPath = false;
         var requestTypes = FOOD_TYPES.concat(ATTRACTION_TYPES).concat(LODGING_TYPES);
@@ -77,15 +83,43 @@ function setupResults($scope){
         position: res.geometry.location,
         map: this.resultMap
       });
+      $scope.infowindow = new google.maps.InfoWindow({});
+      showAltRoute();
     }else{
       if(res === $scope.markedResult){
         $scope.markedResult = null;
         $scope.marker.setMap(null);
         $scope.marker = null;
+        $scope.infowindow.setMap(null);
+        $scope.infowindow = null;
+        $scope.altDirectionsDisplay.setMap(null);
       }else{
         $scope.markedResult = res;
         $scope.marker.setPosition(res.geometry.location);
+        showAltRoute();
       }
+    }
+
+    function showAltRoute(){
+      $scope.altDirectionsDisplay.setMap($scope.resultMap);
+      var altRequest ={
+        origin: $scope.request.origin,
+        destination: $scope.request.destination,
+        travelMode: google.maps.TravelMode.DRIVING,
+        waypoints: $scope.request.waypoints.concat([{
+          location:res.geometry.location,
+          stopover:false
+        }])
+      };
+      $scope.directionsService.route(altRequest, function(result, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+          var addedMiles = (result.routes[0].legs[0].distance.value - $scope.directionsDisplay.directions.routes[0].legs[0].distance.value)*0.00062137;
+          var addedMinutes = (result.routes[0].legs[0].duration.value - $scope.directionsDisplay.directions.routes[0].legs[0].duration.value)/60;
+          $scope.altDirectionsDisplay.setDirections(result);
+          $scope.infowindow.setContent("Adds: "+ addedMiles.toFixed(1) +" miles, "+ addedMinutes.toFixed(0)+" minutes");
+          $scope.infowindow.open($scope.resultMap,$scope.marker);
+        }
+      });
     }
   }
 }
