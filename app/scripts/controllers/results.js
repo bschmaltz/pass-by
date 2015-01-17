@@ -90,8 +90,11 @@ function setupResults($scope){
     var insertBeforeIndex = $scope.addedResults.length;
     for(var i=0; i<$scope.addedResults.length; i++){
       if(resDistanceToDest > google.maps.geometry.spherical.computeDistanceBetween($scope.addedResults[i].geometry.location, dest)){
+        console.log(resDistanceToDest, "insert before", i);
         insertBeforeIndex = i;
+        break;
       }
+      console.log(i, "=", google.maps.geometry.spherical.computeDistanceBetween($scope.addedResults[i].geometry.location, dest));
     }
     if(insertBeforeIndex === $scope.addedResults.length){
       $scope.addedResults.push(res);
@@ -142,7 +145,7 @@ function setupResults($scope){
         destination: $scope.request.destination,
         travelMode: google.maps.TravelMode.DRIVING,
         waypoints: getWaypoints($scope.addedResults, res, dest),
-        optimizeWaypoints: true
+        optimizeWaypoints: false
       };
       $scope.directionsService.route(altRequest, function(result, status) {
         if (status == google.maps.DirectionsStatus.OK) {
@@ -170,24 +173,26 @@ function updateInfoWindowContent(mainRoute, altRoute, infowindow){
 
 function getWaypoints(addedResults, res, dest){
   var waypoints = [];
-
   if(addedResults.indexOf(res)===-1){ //alt route includes marker
     var addedRes = false;
     var resDistanceToDest = google.maps.geometry.spherical.computeDistanceBetween(res.geometry.location, dest);
     for(var i=0; i<addedResults.length; i++){
       if(!addedRes && resDistanceToDest > google.maps.geometry.spherical.computeDistanceBetween(addedResults[i].geometry.location, dest)){
         addedRes = true;
+        console.log("insert here", resDistanceToDest);
         waypoints.push({
           location: res.geometry.location,
           stopover: false
         });
-      }
+      }      
+      console.log(i, "distance", google.maps.geometry.spherical.computeDistanceBetween(addedResults[i].geometry.location, dest));
       waypoints.push({
         location: addedResults[i].geometry.location,
         stopover: false
       });
     }
     if(!addedRes){
+      console.log("push here", resDistanceToDest);
       waypoints.push({
         location: res.geometry.location,
         stopover: false
@@ -203,7 +208,7 @@ function getWaypoints(addedResults, res, dest){
       }
     }
   }
-
+  console.log("\n")
   return waypoints;
 }
 
