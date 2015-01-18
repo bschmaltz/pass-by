@@ -69,15 +69,32 @@ body {
   position: absolute !important;
   width: 400px;
   top: 115px;
-  bottom: 80px;
+  bottom: 20px;
   right: 10px;
 }
 .results-list{
   position: absolute !important;
   width: 370px;
   top: 70px;
-  bottom: 0px;
+  bottom: 40px;
   overflow-y: scroll;
+}
+
+.turn-by-turn-btn{
+  position: absolute !important;
+  bottom: 10px;
+  right: 10px;
+}
+
+.addedResult{
+  background-color: rgba(51, 122, 183, 0.25);
+}
+
+.route-stats{
+  position: absolute !important;
+  bottom: 15px;
+  font-size: 14px;
+  right: 120px;
 }
 
 #results-map-canvas{

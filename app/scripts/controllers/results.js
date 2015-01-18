@@ -4,6 +4,7 @@ var LODGING_TYPES = ['lodging'];
 
 angular.module('passByApp')
   .controller('ResultsCtrl', function ($scope, $routeParams) {
+    $scope.routeStats = "";
     $scope.directionsDisplay = new google.maps.DirectionsRenderer();
     $scope.altDirectionsDisplay = new google.maps.DirectionsRenderer({
       polylineOptions: {
@@ -27,6 +28,7 @@ angular.module('passByApp')
     $scope.directionsService.route($scope.request, function(result, status) {
       if (status == google.maps.DirectionsStatus.OK) {
         $scope.directionsDisplay.setDirections(result);
+        $scope.routeStats = result.routes[0].legs[0].distance.text + ", " +  result.routes[0].legs[0].duration.text;
 
         var placesService = new google.maps.places.PlacesService($scope.resultMap);
         var totalDistance = result.routes[0].legs[0].distance.value;
@@ -77,10 +79,19 @@ function setupResults($scope){
       this.tab = tabName;
     }
   }
+  $scope.moneyString = function(priceLevel){
+    var str = "";
+    for(var i=1; i<=priceLevel; i++){
+      str += "$";
+    }
+    return str;
+  }
+
   $scope.addResult = function(res){
     var oldRoute = $scope.directionsDisplay.directions;
     $scope.directionsDisplay.setDirections($scope.altDirectionsDisplay.directions);
     $scope.altDirectionsDisplay.setDirections(oldRoute);
+    $scope.routeStats = $scope.directionsDisplay.directions.routes[0].legs[0].distance.text + ", " +  $scope.directionsDisplay.directions.routes[0].legs[0].duration.text;
     updateInfoWindowContent($scope.directionsDisplay.directions.routes[0], $scope.altDirectionsDisplay.directions.routes[0], $scope.infowindow);
     $scope.addedResults.push(res);
   }
@@ -88,6 +99,7 @@ function setupResults($scope){
     var oldRoute = $scope.directionsDisplay.directions;
     $scope.directionsDisplay.setDirections($scope.altDirectionsDisplay.directions);
     $scope.altDirectionsDisplay.setDirections(oldRoute);
+    $scope.routeStats = $scope.directionsDisplay.directions.routes[0].legs[0].distance.text + ", " +  $scope.directionsDisplay.directions.routes[0].legs[0].duration.text;
     updateInfoWindowContent($scope.directionsDisplay.directions.routes[0], $scope.altDirectionsDisplay.directions.routes[0], $scope.infowindow);
     $scope.addedResults.splice($scope.addedResults.indexOf(res), 1);
   }
@@ -139,15 +151,52 @@ function setupResults($scope){
 
 function updateInfoWindowContent(mainRoute, altRoute, infowindow){
   var miles = ((altRoute.legs[0].distance.value - mainRoute.legs[0].distance.value)*0.00062137).toFixed(1);
-  var minutes = ((altRoute.legs[0].duration.value - mainRoute.legs[0].duration.value)/60).toFixed(0);
+  var time = altRoute.legs[0].duration.value - mainRoute.legs[0].duration.value;
   if(miles>0){
     miles = "+"+miles;
   }
-  if(minutes>0){
-    minutes = "+"+minutes;
+  var statString =  miles +' mi, '+ timeToString(time);
+  infowindow.setContent('<div style="width: '+ statString.length*7 + 'px; height: 30px;">' + statString + '</div>');
+}
+
+function timeToString(time){
+  var timeString = "";
+  if(time>0){
+    timeString = "+"
+  }else if(time<0){
+    timeString = "-"
+  }
+  time = Math.abs(time);
+
+  if(time/60/60 > 24){ //more than 24 hours, use days
+    var days = Math.floor(time/60/60/24)
+    time -= Math.floor(time/60/60/24)*60*60*24;
+    if(days>1){
+      timeString += days + " days ";
+    }else{
+      timeString += days + " day ";
+    }
+  }
+  if(time/60 > 60 && time>0){ //more than 60 minutes, use hours
+    var hrs = Math.floor(time/60/60);
+    time -= Math.floor(time/60/60)*60*60;
+    if(hrs>1){
+      timeString += hrs + " hrs ";
+    }else{
+      timeString += hrs + " hr ";
+    }
   }
 
-  infowindow.setContent(miles +" miles, "+ minutes+" min");
+  if(time >= 0){
+    var minutes = Math.ceil(time/60);
+    if(minutes>1){
+      timeString += minutes + " mins";
+    }else{
+      timeString += minutes+ " min";
+    }
+  }
+
+  return timeString;
 }
 
 function getWaypoints(addedResults, res){

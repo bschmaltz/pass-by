@@ -2,38 +2,47 @@
   <div class="panel panel-default results">
     <div class="panel-body">
 
-      <ul class="nav nav-pills results-nav">
+      <ul class="nav nav-pills  nav-justified results-nav">
         <li role="presentation" ng-click="setTab('food')" ng-class="{active: tab==='food'}"><a>food</a></li>
         <li role="presentation" ng-click="setTab('attraction')" ng-class="{active: tab==='attraction'}"><a>Attractions</a></li>
         <li role="presentation" ng-click="setTab('lodging')" ng-class="{active: tab==='lodging'}"><a>Lodging</a></li>
       </ul>
 
       <div class="list-group results-list food-results" ng-show="tab === 'food'">
-        <div class="list-group-item" ng-repeat="foodResult in foodResults" ng-click="showPinForRes(foodResult)"  ng-class="{active: foodResult===markedResult }">
+        <div class="list-group-item" ng-repeat="foodResult in foodResults" ng-click="showPinForRes(foodResult)"  ng-class="{active: foodResult===markedResult, addedResult: foodResult!==markedResult && addedResults.indexOf(foodResult)!==-1}">
           <h4 class="list-group-item-heading">{{ foodResult.name }}</h4>
-          <p class="list-group-item-text">Rating: {{ foodResult.rating }}</p>
+          <p class="list-group-item-text">Rating: {{ foodResult.rating }}
+            <span ng-show="foodResult.price_level">, Price: {{ moneyString(foodResult.price_level) }}</span>
+          </p>
           <p class="list-group-item-text">{{ foodResult.vicinity }}</p>
           <button class="btn btn-default add-result-button" type="submit" ng-show="foodResult===markedResult && addedResults.indexOf(foodResult)===-1" ng-click="addResult(foodResult);$event.stopPropagation()">+</button>
           <button class="btn btn-default remove-result-button" type="submit" ng-show="foodResult===markedResult && addedResults.indexOf(foodResult)!==-1" ng-click="removeResult(foodResult);$event.stopPropagation()">-</button>
         </div>
       </div>
       <div class="list-group results-list attraction-results" ng-show="tab === 'attraction'">
-        <div class="list-group-item" ng-repeat="attractionResult in attractionResults" ng-click="showPinForRes(attractionResult)" ng-class="{active: attractionResult===markedResult }">
+        <div class="list-group-item" ng-repeat="attractionResult in attractionResults" ng-click="showPinForRes(attractionResult)" ng-class="{active: attractionResult===markedResult, addedResult: attractionResult!==markedResult && addedResults.indexOf(attractionResult)!==-1 }">
           <h4 class="list-group-item-heading">{{ attractionResult.name }}</h4>
-          <p class="list-group-item-text">Rating: {{ attractionResult.rating }}</p>
+          <p class="list-group-item-text">Rating: {{ attractionResult.rating }}
+            <span ng-show="attractionResult.price_level">, Price: {{ moneyString(attractionResult.price_level) }}</span>
+          </p>
           <p class="list-group-item-text">{{ attractionResult.vicinity }}</p>
           <button class="btn btn-default add-result-button" type="submit" ng-show="attractionResult===markedResult && addedResults.indexOf(attractionResult)===-1" ng-click="addResult(attractionResult);$event.stopPropagation()">+</button>
           <button class="btn btn-default remove-result-button" type="submit" ng-show="attractionResult===markedResult && addedResults.indexOf(attractionResult)!==-1" ng-click="removeResult(attractionResult);$event.stopPropagation()">-</button>
         </div>
       </div>
       <div class="list-group results-list lodging-results" ng-show="tab === 'lodging'">
-        <div class="list-group-item" ng-repeat="lodgingResult in lodgingResults" ng-click="showPinForRes(lodgingResult)"  ng-class="{active: lodgingResult===markedResult }">
+        <div class="list-group-item" ng-repeat="lodgingResult in lodgingResults" ng-click="showPinForRes(lodgingResult)"  ng-class="{active: lodgingResult===markedResult, addedResult: lodgingResult!==markedResult && addedResults.indexOf(lodgingResult)!==-1}">
           <h4 class="list-group-item-heading">{{ lodgingResult.name }}</h4>
-          <p class="list-group-item-text">Rating: {{ lodgingResult.rating }}</p>
-          <p class="list-group-item-text">{{ lodgingResult.vicinity }}</p>
+          <p class="list-group-item-text">Rating: {{ lodgingResult.rating }}
+            <span ng-show="lodgingResult.price_level">, Price: {{ moneyString(lodgingResult.price_level) }}</span>
+          </p>
+          <p class="list-group-item-text">{{ lodgingResult.vicinity }}
+          </p>
           <button class="btn btn-default add-result-button" type="submit" ng-show="lodgingResult===markedResult && addedResults.indexOf(lodgingResult)===-1" ng-click="addResult(lodgingResult);$event.stopPropagation()">+</button>
           <button class="btn btn-default remove-result-button" type="submit" ng-show="lodgingResult===markedResult && addedResults.indexOf(lodgingResult)!==-1" ng-click="removeResult(lodgingResult);$event.stopPropagation()">-</button>
         </div>
       </div>
+      <div class="route-stats">{{ routeStats }}</div>
+      <button class="btn btn-primary turn-by-turn-btn">Turn-by-turn</button>
     </div>
   </div>
