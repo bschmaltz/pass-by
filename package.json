@@ -1,7 +1,11 @@
 {
   "name": "passby",
   "version": "0.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "morgan": "~1.5.1",
+    "gzippo": "~0.2.0",
+    "express": "~4.11.0"
+  },
   "devDependencies": {
     "grunt": "^0.4.1",
     "grunt-autoprefixer": "^0.7.3",
