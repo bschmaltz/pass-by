@@ -1,7 +1,8 @@
+<div class="row directions-error" ng-show="directionsError">That route could not be calculated.</div>
 <div class="row">
   <form class="route-form" ng-submit="handleFormSubmit()">
-    <input type="text" class="form-control" id="origin" placeholder="start">
-    <input type="text" class="form-control" id="destination" placeholder="destination">
-    <button type="submit" class="btn btn-default">Submit</button>
+    <input type="text" class="form-control" id="origin" placeholder="start" ng-model="originModel">
+    <input type="text" class="form-control" id="destination" placeholder="destination" ng-model="destinationModel">
+    <button type="submit" class="btn btn-default" ng-disabled="originModel === null || destinationModel === null">Submit</button>
   </form>
 </div>
