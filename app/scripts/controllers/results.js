@@ -143,6 +143,7 @@ function setupResults($scope){
           $scope.altDirectionsDisplay.setDirections(result);
           updateInfoWindowContent($scope.directionsDisplay.directions.routes[0], result.routes[0], $scope.infowindow)
           $scope.infowindow.open($scope.resultMap,$scope.marker);
+          google.maps.event.trigger(map, 'resize'); $scope.resultMap.panTo(res.geometry.location);
         }
       });
     }
