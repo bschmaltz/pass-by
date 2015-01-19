@@ -140,6 +140,8 @@ function setupResults($scope){
       };
       $scope.directionsService.route(altRequest, function(result, status) {
         if (status == google.maps.DirectionsStatus.OK) {
+          $scope.directionsDisplay.setOptions({ preserveViewport: true });
+          $scope.altDirectionsDisplay.setOptions({ preserveViewport: true });
           $scope.altDirectionsDisplay.setDirections(result);
           updateInfoWindowContent($scope.directionsDisplay.directions.routes[0], result.routes[0], $scope.infowindow)
           $scope.infowindow.open($scope.resultMap,$scope.marker);
