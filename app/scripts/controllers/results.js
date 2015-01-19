@@ -282,7 +282,7 @@ function shiftRight(map){
   var boundsNe = map.getBounds().getNorthEast();
   var boundsSw = map.getBounds().getSouthWest();
   var mapWidth = Math.abs(boundsNe.lng()-boundsSw.lng());
-  var ratio = 1/6; //500/window.innerWidth;
+  var ratio = 400/window.innerWidth;
   var lngShift = mapWidth*ratio;
 
   map.setCenter(new google.maps.LatLng(map.getCenter().lat(), map.getCenter().lng()+lngShift));
