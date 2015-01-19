@@ -71,7 +71,7 @@ body {
 
 .results{
   z-index: 6;
-  background-color: rgba(255, 255, 255, 0.60);
+  background-color: rgba(255, 255, 255, 0.85);
   position: absolute !important;
   width: 400px;
   top: 115px;
@@ -79,7 +79,7 @@ body {
   right: 10px;
 }
 .results-list{
-  background-color: rgba(255, 255, 255, 0.60);
+  background-color: rgba(255, 255, 255, 0);
   position: absolute !important;
   width: 370px;
   top: 70px;
@@ -87,7 +87,7 @@ body {
   overflow-y: scroll;
 }
 .result{
-  background-color: rgba(255, 255, 255, 0.60);
+  background-color: rgba(255, 255, 255, 0);
 }
 
 .turn-by-turn-btn{
