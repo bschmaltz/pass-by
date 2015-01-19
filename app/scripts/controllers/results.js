@@ -28,6 +28,9 @@ angular.module('passByApp')
     $scope.directionsService.route($scope.request, function(result, status) {
       if (status == google.maps.DirectionsStatus.OK) {
         $scope.directionsDisplay.setDirections(result);
+        google.maps.event.addListener($scope.resultMap, 'bounds_changed', function() {
+           shiftRight($scope.resultMap);
+        });
         $scope.routeStats = result.routes[0].legs[0].distance.text + ", " +  result.routes[0].legs[0].duration.text;
 
         var placesService = new google.maps.places.PlacesService($scope.resultMap);
@@ -271,4 +274,19 @@ function updateDisplayedResults($scope, results){
   function lastElementIsNot(res, arr){
     return arr.length === 0 || arr[arr.length-1].id !== res.id;
   }
+}
+
+function shiftRight(map){
+  google.maps.event.clearListeners(map, 'bounds_changed');
+
+  var boundsNe = map.getBounds().getNorthEast();
+  var boundsSw = map.getBounds().getSouthWest();
+  var mapWidth = Math.abs(boundsNe.lng()-boundsSw.lng());
+  var ratio = 1/6; //500/window.innerWidth;
+  var lngShift = mapWidth*ratio;
+
+  map.setCenter(new google.maps.LatLng(map.getCenter().lat(), map.getCenter().lng()+lngShift));
+
+  var newZoom = (map.getZoom()===0) ? 0 : map.getZoom()-1;
+  map.setZoom(newZoom);
 }
